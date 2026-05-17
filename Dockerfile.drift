@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+
+WORKDIR /work
+
+RUN pip install --no-cache-dir numpy==1.26.4 pandas scikit-learn evidently
+
+COPY drift /work/drift
+
+CMD ["python", "drift/evidently_drift_demo.py"]

@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  ml_service:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: hw8_ml_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./mlruns:/app/mlruns
+    environment:
+      - APP_VERSION=1.0.0
+      - MLFLOW_TRACKING_URI=file:/app/mlruns
+
+  prometheus:
+    image: prom/prometheus:v2.53.4
+    container_name: hw8_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml
+    depends_on:
+      - ml_service
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: hw8_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+
+  postgres:
+    image: postgres:16
+    container_name: hw8_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=hw8dq
+      - POSTGRES_USER=hw8
+      - POSTGRES_PASSWORD=hw8
+    volumes:
+      - ./dqops/01_init.sql:/docker-entrypoint-initdb.d/01_init.sql

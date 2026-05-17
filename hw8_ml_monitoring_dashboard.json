@@ -1,0 +1,184 @@
+{
+  "id": null,
+  "uid": "hw8-ml-monitoring",
+  "title": "HW8 ML Monitoring Dashboard",
+  "tags": [
+    "hw8",
+    "ml",
+    "prometheus"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "p95 request latency",
+      "id": 1,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95 latency"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request rate",
+      "id": 2,
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum(rate(ml_service_requests_total[1m])) by (status)",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Model accuracy",
+      "id": 3,
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 8,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "ml_model_accuracy",
+          "legendFormat": "accuracy"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Data drift score",
+      "id": 4,
+      "gridPos": {
+        "x": 8,
+        "y": 8,
+        "w": 8,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "ml_data_drift_score",
+          "legendFormat": "drift"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Data Quality incidents",
+      "id": 5,
+      "gridPos": {
+        "x": 16,
+        "y": 8,
+        "w": 8,
+        "h": 5
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "data_quality_incidents_total",
+          "legendFormat": "dq incidents"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    }
+  ]
+}

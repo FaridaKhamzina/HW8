@@ -1,0 +1,32 @@
+groups:
+  - name: hw8_ml_service_alerts
+    rules:
+      - alert: HighP95Latency
+        expr: histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket[5m])) by (le)) > 1
+        for: 1m
+        labels:
+          severity: warning
+          slo: latency
+        annotations:
+          summary: "High p95 latency detected"
+          description: "p95 latency exceeded 1 second for more than 1 minute."
+
+      - alert: DataDriftDetected
+        expr: ml_data_drift_score > 1
+        for: 1m
+        labels:
+          severity: warning
+          slo: model_quality
+        annotations:
+          summary: "Data drift detected"
+          description: "Synthetic data drift score exceeded threshold."
+
+      - alert: DataQualityIncident
+        expr: data_quality_incidents_total > 0
+        for: 30s
+        labels:
+          severity: critical
+          slo: data_quality
+        annotations:
+          summary: "Data quality incident detected"
+          description: "DQOps or synthetic DQ incident counter is above zero."
